@@ -6,15 +6,59 @@
     android:layout_height="match_parent"
     tools:context=".authentication.AuthenticationActivity">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/map_with_pins"
+        app:srcCompat="@drawable/map_with_pins"
+        android:contentDescription="Map with Pins"
+        android:scaleType="centerCrop"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/welcome" />
+
     <TextView
+        android:id="@+id/welcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/welcome_to_the_location_reminder_app"
         android:textColor="@color/black"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="30sp"
+        android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.384" />
+
+    <Button
+        android:layout_width="@dimen/fui_auth_method_button_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/login_button"
+        android:text="@string/login"
+        android:textSize="@dimen/text_size_large"
+        android:textColor="@color/white"
+        android:background="@color/colorAccent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/welcome"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/register_button"/>
+
+    <Button
+        android:layout_width="@dimen/fui_auth_method_button_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/register_button"
+        android:text="REGISTER"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size_large"
+        android:background="@color/purple"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/login_button"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

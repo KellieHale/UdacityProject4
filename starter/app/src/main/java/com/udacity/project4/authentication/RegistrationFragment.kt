@@ -1,4 +1,7 @@
 package com.udacity.project4.authentication
 
-class RegistrationFragment {
+import androidx.fragment.app.Fragment
+
+class RegistrationFragment: Fragment() {
+
 }
