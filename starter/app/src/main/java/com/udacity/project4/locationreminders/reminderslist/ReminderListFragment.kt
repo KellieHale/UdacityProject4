@@ -4,9 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.NavigationUI.navigateUp
 import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
@@ -16,6 +20,7 @@ import com.udacity.project4.authentication.LoginViewModel
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentRemindersBinding
+import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.setTitle
 import com.udacity.project4.utils.setup
@@ -24,7 +29,11 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class ReminderListFragment : BaseFragment() {
     //use Koin to retrieve the ViewModel instance
     override val _viewModel: RemindersListViewModel by viewModel()
+
     private lateinit var binding: FragmentRemindersBinding
+
+    private lateinit var user: FirebaseAuth
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,6 +44,8 @@ class ReminderListFragment : BaseFragment() {
                 R.layout.fragment_reminders, container, false
             )
         binding.viewModel = _viewModel
+
+        user = FirebaseAuth.getInstance()
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(false)
@@ -80,32 +91,23 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-
+                user.signOut()
+                startActivity(
+                    Intent(requireContext(),
+                        RemindersActivity::class.java)
+                )
+                Toast.makeText(requireContext(), "You have Logged Out", Toast.LENGTH_SHORT)
+                    .show()
             }
+            else -> {}
         }
         return super.onOptionsItemSelected(item)
-
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 //        display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
     }
-
-    private fun logOut() {
-        FirebaseAuth.getInstance().signOut();
-        FirebaseAuth.AuthStateListener {
-            fun onAuthStateChanged(firebaseAuth: FirebaseAuth) {
-                val user = firebaseAuth.currentUser
-                if (user != null) {
-                    Log.d(this.toString(), "onAuthStateChanged:signed_in" + user.uid)
-                } else {
-                    Log.d(this.toString(), "onAuthStateChanged:signed_out")
-                }
-            }
-        }
-    }
-
-
 }

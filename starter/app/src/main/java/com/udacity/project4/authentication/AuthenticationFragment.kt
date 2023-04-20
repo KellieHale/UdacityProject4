@@ -82,7 +82,7 @@ class AuthenticationFragment : Fragment() {
                     TAG, "Successfully signed in user" +
                         "${FirebaseAuth.getInstance().currentUser?.displayName}!")
                 findNavController().navigate(R.id.action_authenticationFragment_to_reminderListFragment)
-                Toast.makeText(context, "Welcome to the Location Reminders App!", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Welcome to the Location Reminders App!", Toast.LENGTH_SHORT).show()
             } else {
                 Log.i(TAG, "Sign in unsuccessful ${response?.error?.message}")
                 Toast.makeText(context,"Please register for an Account", Toast.LENGTH_LONG).show()
