@@ -42,7 +42,7 @@ buildscript {
         playServicesLocationVersion = '21.0.1'
         playServicesMapsVersion = '18.1.0'
         firebaseUiAuthVersion = '8.0.2'
-        firebaseAuthKtxVersion = '21.2.0'
+        firebaseAuthKtxVersion = '21.3.0'
     }
     repositories {
         google()

@@ -21,12 +21,6 @@ class RemindersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminders)
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-
-        setupActionBarWithNavController(navController)
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -36,7 +30,7 @@ class RemindersActivity : AppCompatActivity() {
                 return true
             }
         }
-        return super.onOptionsItemSelected(item)
+        return false
     }
 
 

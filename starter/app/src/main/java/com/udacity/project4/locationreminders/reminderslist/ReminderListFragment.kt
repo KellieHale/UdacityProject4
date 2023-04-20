@@ -1,9 +1,18 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import com.firebase.ui.auth.AuthUI
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
+import com.udacity.project4.authentication.AuthenticationFragment
+import com.udacity.project4.authentication.LoginViewModel
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentRemindersBinding
@@ -71,7 +80,7 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-//                TODO: add the logout implementation
+
             }
         }
         return super.onOptionsItemSelected(item)
@@ -83,5 +92,20 @@ class ReminderListFragment : BaseFragment() {
 //        display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
     }
+
+    private fun logOut() {
+        FirebaseAuth.getInstance().signOut();
+        FirebaseAuth.AuthStateListener {
+            fun onAuthStateChanged(firebaseAuth: FirebaseAuth) {
+                val user = firebaseAuth.currentUser
+                if (user != null) {
+                    Log.d(this.toString(), "onAuthStateChanged:signed_in" + user.uid)
+                } else {
+                    Log.d(this.toString(), "onAuthStateChanged:signed_out")
+                }
+            }
+        }
+    }
+
 
 }
