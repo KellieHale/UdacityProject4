@@ -1,50 +1,42 @@
 package com.udacity.project4.locationreminders.savereminder.selectreminderlocation
 
 
-import android.Manifest
-import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.Application
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
+import android.provider.Settings
 import android.util.Log
 import android.view.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.setFragmentResult
-import androidx.navigation.fragment.findNavController
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.dynamic.SupportFragmentWrapper
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
-import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
-import com.udacity.project4.locationreminders.data.ReminderDataSource
-import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import com.udacity.project4.utils.sendNotification
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.*
+
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -59,9 +51,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private var longitude: Double = 0.0
     private var homeLatLng = LatLng(latitude, longitude)
 
+    private val requestMultiplePermissions = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { checkAllLocationPermissions() }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_select_location, container, false)
 
@@ -77,6 +73,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         return binding.root
     }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
     }
@@ -103,19 +100,50 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        val zoomLevel = 20f
 
-        if (isPermissionGranted()) {
+        checkAllLocationPermissions()
+    }
+
+    private fun checkAllLocationPermissions() {
+        if (isPermissionGranted() && isBackgroundPermissionGranted()) {
+            val zoomLevel = 20f
             map.addMarker(MarkerOptions().position(homeLatLng))
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
+            showMyLocationOnMap()
+        } else if (!isPermissionGranted()) {
+            enableMyLocation()
+        } else if (!isBackgroundPermissionGranted()) {
+            if (shouldShowRequestPermissionRationale(ACCESS_BACKGROUND_LOCATION)) {
+                showMessageOKCancel(
+                    "In order to use the Geofencing feature of this app, " +
+                            "please select \"Allow all the time\" on the next " +
+                            "screen to allow background location access."
+                ) { dialog , _ ->
+                    dialog.dismiss()
+                    if (Build.VERSION.SDK_INT >= 29) {
+                        ActivityCompat.requestPermissions(requireActivity(),
+                            arrayOf(ACCESS_BACKGROUND_LOCATION), REQUEST_LOCATION_PERMISSION
+                        )
+                    }
+                }
+            }
         }
-        enableMyLocation()
+
         setPoiClick(map)
         setMapStyle(map)
     }
 
-    private fun setPoiClick(map: GoogleMap) {
+    private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
+        AlertDialog.Builder(requireContext())
+            .setMessage(message)
+            .setPositiveButton("OK", okListener)
+            .setNegativeButton("Cancel"
+            ) { dialog, _ -> dialog.dismiss() }
+            .create()
+            .show()
+    }
 
+    private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
             val poiMarker = map.addMarker(
                 MarkerOptions()
@@ -127,6 +155,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             onLocationSelected(requireContext(), poi.name)
         }
     }
+
     private fun onLocationSelected(context: Context, poiName: String) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Location Selected")
@@ -134,11 +163,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         builder.setNeutralButton("Deny", null)
         builder.setPositiveButton("Accept") { dialog, _ ->
             dialog.dismiss()
-            setFragmentResult("location", bundleOf("location" to poiName))
+            setFragmentResult("location", bundleOf("location" to poiName, "latitude" to latitude, "longitude" to longitude))
             activity?.supportFragmentManager?.popBackStack()
         }
         builder.show()
     }
+
     private fun setMapStyle(map: GoogleMap) {
         try {
             val success = map.setMapStyle(
@@ -162,36 +192,40 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
-    @SuppressLint("MissingPermission")
-    private fun enableMyLocation() {
-        if (isPermissionGranted()) {
-            map.isMyLocationEnabled = true
-            fusedLocationProviderClient.lastLocation
-                .addOnSuccessListener { location: Location ->
-                    latitude = location.latitude
-                    longitude = location.longitude
-                    val currentLocation = LatLng(latitude, longitude)
-                    map.addMarker(MarkerOptions().position(currentLocation))
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
-                }
-        }
-        else {
-            ActivityCompat.requestPermissions(
-                requireContext() as Activity,
-                arrayOf<String>(ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
+    private fun isBackgroundPermissionGranted(): Boolean {
+        if (Build.VERSION.SDK_INT >= 29) {
+            return ContextCompat.checkSelfPermission(
+                requireContext(),
+                ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            return true
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && (grantResults[0] ==PackageManager.PERMISSION_GRANTED)) {
-            enableMyLocation()
+    @SuppressLint("MissingPermission")
+    private fun showMyLocationOnMap() {
+        fusedLocationProviderClient.lastLocation
+            .addOnSuccessListener { location: Location ->
+                latitude = location.latitude
+                longitude = location.longitude
+                val currentLocation = LatLng(latitude, longitude)
+                map.isMyLocationEnabled = true
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+            }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableMyLocation() {
+        if (isPermissionGranted()) {
+            showMyLocationOnMap()
+        }
+        else {
+            requestMultiplePermissions.launch(
+                arrayOf(
+                    ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION
+                )
+            )
         }
     }
 }

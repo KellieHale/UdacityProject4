@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.data.local
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Update
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -30,7 +31,7 @@ interface RemindersDao {
      *
      * @param reminder the reminder to be inserted.
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = REPLACE)
     suspend fun saveReminder(reminder: ReminderDTO)
 
     /**

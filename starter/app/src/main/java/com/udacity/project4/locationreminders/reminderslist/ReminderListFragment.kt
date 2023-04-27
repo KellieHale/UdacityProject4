@@ -32,6 +32,8 @@ class ReminderListFragment : BaseFragment() {
 
     private lateinit var binding: FragmentRemindersBinding
 
+    private lateinit var adapter: RemindersListAdapter
+
     private lateinit var user: FirebaseAuth
 
     override fun onCreateView(
@@ -81,9 +83,9 @@ class ReminderListFragment : BaseFragment() {
     }
 
     private fun setupRecyclerView() {
-        val adapter = RemindersListAdapter {
+        adapter = RemindersListAdapter { reminder ->
+            _viewModel.loadReminders()
         }
-
 //        setup the recycler view using the extension function
         binding.reminderssRecyclerView.setup(adapter)
     }

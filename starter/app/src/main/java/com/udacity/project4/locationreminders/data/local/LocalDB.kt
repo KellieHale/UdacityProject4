@@ -1,7 +1,9 @@
 package com.udacity.project4.locationreminders.data.local
 
 import android.content.Context
+import androidx.lifecycle.ViewModel
 import androidx.room.Room
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 
 
 /**
