@@ -72,5 +72,4 @@ class RemindersListViewModel(
         showNoData.value = remindersList.value == null || remindersList.value!!.isEmpty()
     }
 
-
 }

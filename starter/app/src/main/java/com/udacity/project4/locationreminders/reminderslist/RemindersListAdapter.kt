@@ -9,4 +9,5 @@ class RemindersListAdapter(callBack: (selectedReminder: ReminderDataItem) -> Uni
     BaseRecyclerViewAdapter<ReminderDataItem>(callBack) {
 
     override fun getLayoutRes(viewType: Int) = R.layout.it_reminder
+
 }

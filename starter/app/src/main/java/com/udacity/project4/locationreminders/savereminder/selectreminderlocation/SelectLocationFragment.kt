@@ -26,6 +26,7 @@ import androidx.fragment.app.setFragmentResult
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
@@ -103,7 +104,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         checkAllLocationPermissions()
     }
-
     private fun checkAllLocationPermissions() {
         if (isPermissionGranted() && isBackgroundPermissionGranted()) {
             val zoomLevel = 20f
@@ -128,7 +128,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 }
             }
         }
-
+        showMyLocationOnMap()
         setPoiClick(map)
         setMapStyle(map)
     }
