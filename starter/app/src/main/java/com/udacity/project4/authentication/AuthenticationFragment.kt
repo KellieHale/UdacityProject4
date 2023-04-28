@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
@@ -20,6 +21,7 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdToken
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
+import com.udacity.project4.locationreminders.RemindersActivity
 import kotlin.math.sign
 
 class AuthenticationFragment : Fragment() {
@@ -75,6 +77,13 @@ class AuthenticationFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        viewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
+            if (authenticationState == LoginViewModel.AuthenticationState.AUTHENTICATED) {
+                startActivity(Intent(context, RemindersActivity::class.java))
+            }
+        })
+
         if (requestCode == SIGN_IN_RESULT_CODE){
             val response = IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK) {

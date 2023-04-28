@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders.geofence
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.JobIntentService
@@ -12,7 +13,6 @@ import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.sendNotification
 import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
-import org.koin.core.component.getScopeId
 import kotlin.coroutines.CoroutineContext
 
 class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
@@ -24,7 +24,6 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
     companion object {
         private const val JOB_ID = 573
 
-        //        TODO: call this to start the JobIntentService to handle the geofencing transition events
         fun enqueueWork(context: Context, intent: Intent) {
             enqueueWork(
                 context,
@@ -39,7 +38,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         geofencingEvent?.triggeringGeofences?.let { sendNotification(it) }
     }
 
-    private fun sendNotification(triggeringGeofences: List<Geofence>) {
+    fun sendNotification(triggeringGeofences: List<Geofence>) {
 
         triggeringGeofences.forEach {
 
@@ -68,7 +67,4 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
             }
         }
     }
-
-
-
 }
