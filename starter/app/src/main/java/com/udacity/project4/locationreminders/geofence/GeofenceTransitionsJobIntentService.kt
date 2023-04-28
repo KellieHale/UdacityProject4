@@ -38,7 +38,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         geofencingEvent?.triggeringGeofences?.let { sendNotification(it) }
     }
 
-    fun sendNotification(triggeringGeofences: List<Geofence>) {
+    private fun sendNotification(triggeringGeofences: List<Geofence>) {
 
         triggeringGeofences.forEach {
 

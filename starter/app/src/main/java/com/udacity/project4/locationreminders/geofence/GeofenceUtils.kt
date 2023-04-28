@@ -16,4 +16,4 @@ import com.udacity.project4.R
         }
     }
 
-const val GEOFENCE_RADIUS_IN_METERS = 10000f
+const val GEOFENCE_RADIUS_IN_METERS = 100f
