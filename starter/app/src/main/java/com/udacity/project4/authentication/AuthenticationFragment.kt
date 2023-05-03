@@ -20,8 +20,10 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
+import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
 import com.udacity.project4.locationreminders.RemindersActivity
+import com.udacity.project4.locationreminders.reminderslist.ReminderListFragment
 import kotlin.math.sign
 
 class AuthenticationFragment : Fragment() {
@@ -30,6 +32,7 @@ class AuthenticationFragment : Fragment() {
     private lateinit var navController: NavController
 
     private val viewModel by viewModels<LoginViewModel>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,6 +43,10 @@ class AuthenticationFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
+        val auth = FirebaseAuth.getInstance()
+        if (auth.currentUser != null) {
+            findNavController().navigate(R.id.action_authenticationFragment_to_reminderListFragment)
+        }
         return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
