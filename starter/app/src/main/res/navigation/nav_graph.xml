@@ -44,6 +44,7 @@
     <activity
         android:id="@+id/reminderDescriptionActivity"
         android:name="com.udacity.project4.locationreminders.ReminderDescriptionActivity"
-        android:label="ReminderDescriptionActivity" />
+        android:label="ReminderDescriptionActivity"
+        app:action="action_reminderDescriptionActivity_To_reminderListFragment" />
 
 </navigation>

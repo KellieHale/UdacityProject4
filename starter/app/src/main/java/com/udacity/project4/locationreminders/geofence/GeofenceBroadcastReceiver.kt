@@ -1,13 +1,17 @@
 package com.udacity.project4.locationreminders.geofence
 
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
+import com.google.android.gms.location.GeofencingRequest
 import com.udacity.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService.Companion.enqueueWork
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment.Companion.ACTION_GEOFENCE_EVENT
+import com.udacity.project4.utils.sendNotification
 
 /**
  * Triggered by the Geofence.  Since we can have many Geofences at once, we pull the request
@@ -25,18 +29,26 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         if (intent.action == ACTION_GEOFENCE_EVENT) {
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
 
-            if (geofencingEvent?.hasError() == true) {
-                val errorMessage = errorMessage(context, geofencingEvent.errorCode)
-                Log.e(TAG,errorMessage)
-                return
+            if (geofencingEvent != null) {
+                if (geofencingEvent.hasError()) {
+                    val errorMessage = errorMessage(context, geofencingEvent.errorCode)
+                    Log.e(TAG, errorMessage)
+                    return
+                }
             }
-            when (geofencingEvent?.geofenceTransition) {
-                Geofence.GEOFENCE_TRANSITION_ENTER -> {
-                    enqueueWork(context, intent)
+            if (geofencingEvent!!.geofenceTransition == GeofencingRequest.INITIAL_TRIGGER_ENTER) {
+                when (geofencingEvent.geofenceTransition) {
+                    GeofencingRequest.INITIAL_TRIGGER_ENTER -> {
+                        enqueueWork(context, intent)
+                    }
+                    else -> {
+                        Log.e(TAG, "Geofence Not Found")
+                    }
                 }
             }
         }
     }
+
 
     companion object {
         private const val TAG = "GeofenceBroadcastReceiver"

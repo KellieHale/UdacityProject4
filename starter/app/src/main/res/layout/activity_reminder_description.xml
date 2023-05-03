@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/page_title"
             android:gravity="center"
-            android:text="Reminder Details"
+            android:text="@string/reminder_details"
             android:textSize="30sp"
             android:textColor="@color/black"
             app:layout_constraintBottom_toTopOf="@id/reminder_title"
@@ -95,7 +95,7 @@
             app:layout_constraintTop_toBottomOf="@id/reminder_description"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/selectedLocation"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toTopOf="@id/back_button"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -106,7 +106,21 @@
             app:layout_constraintTop_toBottomOf="@id/description"
             app:layout_constraintStart_toEndOf="@id/reminder_location"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toTopOf="@id/back_button"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/back_button"
+            android:text="@string/back"
+            android:textSize="@dimen/text_size_large"
+            android:textColor="@color/white"
+            android:background="@color/colorAccent"
+            android:padding="@dimen/margin_normal"
+            app:layout_constraintTop_toBottomOf="@id/reminder_location"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

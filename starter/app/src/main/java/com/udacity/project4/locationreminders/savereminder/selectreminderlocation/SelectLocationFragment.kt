@@ -149,7 +149,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 MarkerOptions()
                     .position(poi.latLng)
                     .title(poi.name)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
             )
             poiMarker?.showInfoWindow()
             onLocationSelected(requireContext(), poi.name)

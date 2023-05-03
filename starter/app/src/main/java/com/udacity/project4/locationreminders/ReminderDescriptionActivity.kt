@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
@@ -12,6 +13,7 @@ import com.udacity.project4.R
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.ActivityReminderDescriptionBinding
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.locationreminders.reminderslist.ReminderListFragment
 
 /**
  * Activity that displays the reminder details after the user clicks on the notification
@@ -38,6 +40,17 @@ class ReminderDescriptionActivity : AppCompatActivity() {
         )
         val intent = intent.extras?.getSerializable(EXTRA_ReminderDataItem) as ReminderDataItem
         binding.reminderDataItem = intent
+
+        binding.backButton.setOnClickListener {
+            onClick()
+        }
+    }
+
+    private fun onClick() {
+        val intent = Intent(this, RemindersActivity::class.java).apply {
+
+        }
+        startActivity(intent)
     }
 
 }

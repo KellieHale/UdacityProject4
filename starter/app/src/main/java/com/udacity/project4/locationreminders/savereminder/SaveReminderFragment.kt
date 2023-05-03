@@ -125,7 +125,6 @@ class SaveReminderFragment : BaseFragment() {
 
         geofencingClient.addGeofences(geofencingRequest,geofencePendingIntent).run {
             addOnCompleteListener {
-                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
                     addOnSuccessListener {
                         Log.e("Add Geofence", geofencingRequest.geofences.toString())
                         Toast.makeText(requireActivity(), "Geofence Added!", Toast.LENGTH_SHORT).show()
@@ -141,7 +140,7 @@ class SaveReminderFragment : BaseFragment() {
                 }
             }
         }
-    }
+
 
 
 
