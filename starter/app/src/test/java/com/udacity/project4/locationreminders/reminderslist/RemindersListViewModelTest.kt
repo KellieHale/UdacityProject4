@@ -49,11 +49,18 @@ class RemindersListViewModelTest {
     }
 
     @Test
-    fun check_loading() = mainCoroutineRule.runBlockingTest {
+    fun checkLoadingValues() = mainCoroutineRule.runBlockingTest {
         mainCoroutineRule.pauseDispatcher()
         remindersListViewModel.loadReminders()
         assertTrue(remindersListViewModel.showLoading.value!!)
         mainCoroutineRule.resumeDispatcher()
+        assertFalse(remindersListViewModel.showLoading.value!!)
+        assertFalse(remindersListViewModel.showNoData.value!!)
+    }
+
+    @Test
+    fun checkDataFromFakeDataSource() {
+        remindersListViewModel.loadReminders()
         val remindersList = remindersListViewModel.remindersList.getOrAwaitValue()
         assertEquals(1, remindersList?.size)
         assertEquals("Test Title", remindersList?.first()?.title)
@@ -61,7 +68,22 @@ class RemindersListViewModelTest {
         assertEquals("Orlando, FL", remindersList?.first()?.location)
         assertEquals(0.0, remindersList?.first()?.longitude)
         assertEquals(0.0, remindersList?.first()?.latitude)
-        assertFalse(remindersListViewModel.showLoading.value!!)
-        assertFalse(remindersListViewModel.showNoData.value!!)
+    }
+
+    @Test
+    fun showErrorWhenLoadingReminders() {
+        fakeDataSource.setShouldReturnError(true)
+        remindersListViewModel.loadReminders()
+
+        assertEquals("Fake error encountered...", remindersListViewModel.showSnackBar.value)
+    }
+
+    @Test
+    fun testNoData() =  mainCoroutineRule.runBlockingTest{
+        mainCoroutineRule.pauseDispatcher()
+        fakeDataSource.deleteAllReminders()
+        remindersListViewModel.loadReminders()
+        mainCoroutineRule.resumeDispatcher()
+        assertTrue(remindersListViewModel.showNoData.value!!)
     }
 }
