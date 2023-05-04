@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.udacity.project4.R
+import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.locationreminders.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
@@ -49,12 +51,26 @@ class SaveReminderViewModelTest {
     }
 
     @Test
-    fun saveReminder() {
+    fun saveReminder() = mainCoroutineRule.runBlockingTest {
         val reminder = getReminder()
         saveReminderViewModel.validateAndSaveReminder(reminder)
-        //-- TODO Assert for reminder being saved
-        //-- TODO Asset for navigationCommand having a value
-//        assert(saveReminderViewModel.validateEnteredData(reminder))
+        when (val result = dataSource.getReminder(reminder.id)) {
+            is Result.Success<*> -> {
+                val savedReminder = result.data as ReminderDTO
+                assertEquals("Test Title", savedReminder.title)
+                assertEquals("Test Description", savedReminder.description)
+                assertEquals("Orlando, FL", savedReminder.location)
+                assertEquals(0.00000, savedReminder.latitude)
+                assertEquals(0.00000, savedReminder.longitude)
+            }
+            is Result.Error -> {
+
+            }
+        }
+
+        saveReminderViewModel.navigationCommand.value
+        assertEquals(NavigationCommand.Back, saveReminderViewModel.navigationCommand.value)
+
     }
 
     @Test
@@ -64,23 +80,26 @@ class SaveReminderViewModelTest {
     }
 
     @Test
-    fun testInvalidDataForReminder() {
+    fun testInvalidDataForReminder()  = mainCoroutineRule.runBlockingTest {
+        dataSource.deleteAllReminders()
         val emptyTitleReminder = ReminderDataItem(
             title = "",
-            description = "",
+            description = "Test Description",
             location = "Orlando, FL",
             latitude = 0.00000,
             longitude = 0.00000)
-        //-- TODO: Assert that invalid title doesn't save
+        saveReminderViewModel.validateAndSaveReminder(emptyTitleReminder)
+        assertEquals(R.string.err_enter_title, saveReminderViewModel.showSnackBarInt.value)
+
 
         val emptyLocationReminder = ReminderDataItem(
-            title = "Test",
-            description = "",
+            title = "Test Title",
+            description = "Test Description",
             location = "",
             latitude = 0.00000,
             longitude = 0.00000)
-
-        //-- TODO: Assert that invalid location doesn't save
+        saveReminderViewModel.validateAndSaveReminder(emptyLocationReminder)
+        assertEquals(R.string.err_select_location, saveReminderViewModel.showSnackBarInt.value)
     }
 
     @Test
@@ -92,8 +111,7 @@ class SaveReminderViewModelTest {
             latitude = 0.00000,
             longitude = 0.00000)
         saveReminderViewModel.validateAndSaveReminder(reminder)
-        val result = dataSource.getReminder(reminder.id)
-        when (result) {
+        when (val result = dataSource.getReminder(reminder.id)) {
             is Result.Success<*> -> {
                 val savedReminder = result.data as ReminderDTO
                 assertEquals("", savedReminder.description)
