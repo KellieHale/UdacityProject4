@@ -52,7 +52,7 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
 
     private val requestMultiplePermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { checkAllLocationPermissions() }
+    ) { checkLocationPermissions() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -101,11 +101,11 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
-        checkAllLocationPermissions()
+        checkLocationPermissions()
     }
 
     @SuppressLint("MissingPermission")
-    private fun checkAllLocationPermissions() {
+    private fun checkLocationPermissions() {
         if (isPermissionGranted()) {
             val zoomLevel = 20f
             map.addMarker(MarkerOptions().position(homeLatLng))
