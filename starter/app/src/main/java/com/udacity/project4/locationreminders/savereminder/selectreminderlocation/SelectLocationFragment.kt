@@ -5,10 +5,12 @@ import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Context.LOCATION_SERVICE
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -47,6 +49,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private var homeLatLng = LatLng(latitude, longitude)
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
 
     private val requestMultiplePermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -95,11 +99,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         else -> super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
         checkAllLocationPermissions()
     }
+
     private fun checkAllLocationPermissions() {
         if (isPermissionGranted() && isBackgroundPermissionGranted()) {
             val zoomLevel = 20f
@@ -124,10 +130,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 }
             }
         }
+        isLocationAvailableOnDevice()
         showMyLocationOnMap()
         setPoiClick(map)
         setRandomPoi(map)
         setMapStyle(map)
+        getLocationUpdates()
     }
 
     private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
@@ -214,18 +222,28 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private fun showMyLocationOnMap() {
-        fusedLocationProviderClient.lastLocation
-            .addOnSuccessListener { location: Location ->
-                latitude = location.latitude
-                longitude = location.longitude
-                val currentLocation = LatLng(latitude, longitude)
-                map.isMyLocationEnabled = true
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
-            }
-//            .addOnFailureListener {
-//                Toast.makeText(context, getString(R.string.permission_denied_explanation), Toast.LENGTH_SHORT).show()
-//            }
+        if (isLocationAvailableOnDevice()) {
+            fusedLocationProviderClient.lastLocation
+                .addOnSuccessListener { location: Location ->
+                    latitude = location.latitude
+                    longitude = location.longitude
+                    val currentLocation = LatLng(latitude, longitude)
+                    map.isMyLocationEnabled = true
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+                }
+                .addOnFailureListener {
+                    getLocationUpdates()
+                }
+        }
     }
+
+    private fun isLocationAvailableOnDevice(): Boolean {
+        val locationManager: LocationManager = requireActivity().
+        getSystemService(LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
@@ -240,4 +258,23 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             )
         }
     }
+
+    private fun getLocationUpdates() {
+        locationRequest = LocationRequest()
+        locationRequest.intervalMillis
+        locationRequest.fastestInterval = 50000
+        locationRequest.smallestDisplacement = 100f
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                if (p0.locations.isNotEmpty()) {
+                    val location = p0.lastLocation
+                    location?.latitude
+                    location?.longitude
+
+                }
+            }
+        }
+    }
+
 }
