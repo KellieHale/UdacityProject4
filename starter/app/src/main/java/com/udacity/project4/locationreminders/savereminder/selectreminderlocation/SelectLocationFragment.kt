@@ -3,20 +3,17 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest.permission.*
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,7 +23,6 @@ import androidx.fragment.app.setFragmentResult
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
@@ -119,17 +115,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                             "please select \"Allow all the time\" on the next " +
                             "screen to allow background location access."
                 ) { dialog , _ ->
+                    Toast.makeText(context, getString(R.string.permission_denied_explanation), Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                     if (Build.VERSION.SDK_INT >= 29) {
                         ActivityCompat.requestPermissions(requireActivity(),
-                            arrayOf(ACCESS_BACKGROUND_LOCATION), REQUEST_LOCATION_PERMISSION
-                        )
+                            arrayOf(ACCESS_BACKGROUND_LOCATION), REQUEST_LOCATION_PERMISSION)
                     }
                 }
             }
         }
         showMyLocationOnMap()
         setPoiClick(map)
+        setRandomPoi(map)
         setMapStyle(map)
     }
 
@@ -141,6 +138,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             ) { dialog, _ -> dialog.dismiss() }
             .create()
             .show()
+    }
+    private fun setRandomPoi(map: GoogleMap) {
+        map.setOnMapLongClickListener { latlng ->
+            val randomMarker = map.addMarker(
+                MarkerOptions()
+                    .position(latlng)
+                    .title(getString(R.string.poi))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
+            )
+            randomMarker?.showInfoWindow()
+            onLocationSelected(requireContext(), latlng.toString())
+        }
     }
 
     private fun setPoiClick(map: GoogleMap) {
@@ -213,6 +222,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 map.isMyLocationEnabled = true
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
             }
+//            .addOnFailureListener {
+//                Toast.makeText(context, getString(R.string.permission_denied_explanation), Toast.LENGTH_SHORT).show()
+//            }
     }
 
     @SuppressLint("MissingPermission")
