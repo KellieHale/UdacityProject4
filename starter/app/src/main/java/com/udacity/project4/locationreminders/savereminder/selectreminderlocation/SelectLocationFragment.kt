@@ -6,18 +6,15 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
-import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
@@ -109,7 +106,7 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
 
     @SuppressLint("MissingPermission")
     private fun checkAllLocationPermissions() {
-        if (isPermissionGranted() && isBackgroundPermissionGranted()) {
+        if (isPermissionGranted()) {
             val zoomLevel = 20f
             map.addMarker(MarkerOptions().position(homeLatLng))
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
@@ -120,22 +117,7 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
 
         } else if (!isPermissionGranted()) {
             enableMyLocation()
-        } else if (!isBackgroundPermissionGranted()) {
-            if (shouldShowRequestPermissionRationale(ACCESS_BACKGROUND_LOCATION)) {
-                showMessageOKCancel(
-                    "In order to use the Geofencing feature of this app, " +
-                            "please select \"Allow all the time\" on the next " +
-                            "screen to allow background location access."
-                ) { dialog , _ ->
-                    Toast.makeText(context, getString(R.string.permission_denied_explanation), Toast.LENGTH_SHORT).show()
-                    dialog.dismiss()
-                    if (Build.VERSION.SDK_INT >= 29) {
-                        ActivityCompat.requestPermissions(requireActivity(),
-                            arrayOf(ACCESS_BACKGROUND_LOCATION), REQUEST_LOCATION_PERMISSION)
-                    }
-                }
             }
-        }
         isLocationAvailableOnDevice()
         setPoiClick(map)
         setLongClickPoi(map)
@@ -156,16 +138,6 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
     override fun onMyLocationClick(location: Location) {
         Toast.makeText(context, "Current Location is \n$location", Toast.LENGTH_SHORT).show()
     }
-
-    private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
-        AlertDialog.Builder(requireContext())
-            .setMessage(message)
-            .setPositiveButton("OK", okListener)
-            .setNegativeButton("Cancel"
-            ) { dialog, _ -> dialog.dismiss() }
-            .create()
-            .show()
-    }
     private fun setLongClickPoi(map: GoogleMap) {
         map.setOnMapLongClickListener { latlng ->
             val randomMarker = map.addMarker(
@@ -185,7 +157,7 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
                 MarkerOptions()
                     .position(poi.latLng)
                     .title(poi.name)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
             )
             poiMarker?.showInfoWindow()
             onLocationSelected(requireContext(), poi.name)
@@ -210,7 +182,7 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
             val success = map.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
                     requireContext(),
-                    R.raw.map_style
+                    R.raw.mapstyle
                 )
             )
             if (!success) {
@@ -228,17 +200,6 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
             ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun isBackgroundPermissionGranted(): Boolean {
-        if (Build.VERSION.SDK_INT >= 29) {
-            return ContextCompat.checkSelfPermission(
-                requireContext(),
-                ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        } else {
-            return true
-        }
-    }
-
     @SuppressLint("MissingPermission")
     private fun showMyLocationOnMap() {
         if (isLocationAvailableOnDevice()) {
@@ -249,7 +210,6 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
                     val currentLocation = LatLng(latitude, longitude)
                     map.isMyLocationEnabled = true
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 5f))
-                    getLocationUpdates()
                 }
         }
     }
@@ -260,7 +220,6 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
-
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {

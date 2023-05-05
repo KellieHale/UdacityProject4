@@ -1,15 +1,21 @@
 package com.udacity.project4.locationreminders.savereminder
 
+import android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.PendingIntent
-import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build.VERSION
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.setFragmentResultListener
 import com.google.android.gms.location.Geofence
@@ -33,6 +39,7 @@ class SaveReminderFragment : BaseFragment() {
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
     private lateinit var geofencingClient: GeofencingClient
+    private val REQUEST_CODE = 0
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
         intent.action = ACTION_GEOFENCE_EVENT
@@ -85,16 +92,9 @@ class SaveReminderFragment : BaseFragment() {
             if (latitude != null && longitude != null) {
                 val latLng = LatLng(latitude, longitude)
 
-
-
                 createGeofence(latLng, ReminderDataItem(title, description, location, latitude, longitude))
             }
         }
-
-//            TODO: use the user entered reminder details to:
-//             1) add a geofencing request
-//             2) save the reminder to the local db
-
     }
 
     override fun onDestroy() {
@@ -102,6 +102,7 @@ class SaveReminderFragment : BaseFragment() {
         //make sure to clear the view model after destroy, as it's a single view model.
         _viewModel.onClear()
     }
+
 
     @SuppressLint("MissingPermission")
     private fun createGeofence(
@@ -123,11 +124,13 @@ class SaveReminderFragment : BaseFragment() {
             .addGeofence(geofence)
             .build()
 
-        geofencingClient.addGeofences(geofencingRequest,geofencePendingIntent).run {
-            addOnCompleteListener {
+        if (checkForLocationPermissionGranted()) {
+            geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+                addOnCompleteListener {
                     addOnSuccessListener {
                         Log.e("Add Geofence", geofencingRequest.geofences.toString())
-                        Toast.makeText(requireActivity(), "Geofence Added!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireActivity(), "Geofence Added!", Toast.LENGTH_SHORT)
+                            .show()
                         _viewModel.validateAndSaveReminder(reminderDataItem)
                     }
                     addOnFailureListener {
@@ -135,15 +138,64 @@ class SaveReminderFragment : BaseFragment() {
                         Toast.makeText(
                             requireActivity(),
                             resources.getString(R.string.geofences_not_added),
-                            Toast.LENGTH_SHORT).show()
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
         }
+    }
 
 
+    private fun isBackgroundPermissionGranted(): Boolean {
+        return if (VERSION.SDK_INT >= 29) {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
 
+    @SuppressLint("InlinedApi")
+    private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
+        AlertDialog.Builder(requireContext())
+            .setMessage(message)
+            .setPositiveButton("OK", okListener)
+            .setNegativeButton("Cancel"
+            ) { dialog, _ -> dialog.dismiss() }
+            .create()
+            .show()
+    }
 
+    private fun checkForLocationPermissionGranted(): Boolean {
+        if (!isBackgroundPermissionGranted()) {
+            if (shouldShowRequestPermissionRationale(ACCESS_BACKGROUND_LOCATION)) {
+                showMessageOKCancel(
+                    "In order to use the Geofencing feature of this app, " +
+                            "please select \"Allow all the time\" on the next " +
+                            "screen to allow background location access."
+                )
+                { dialog, _ ->
+                    Toast.makeText(
+                        context,
+                        getString(R.string.permission_denied_explanation),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    dialog.dismiss()
+                    if (VERSION.SDK_INT >= 29) {
+                        ActivityCompat.requestPermissions(
+                            requireActivity(),
+                            arrayOf(ACCESS_BACKGROUND_LOCATION),
+                            1
+                        )
+                    }
+                }
+            }
+        }
+        return true
+    }
 
     companion object {
         internal const val ACTION_GEOFENCE_EVENT =
