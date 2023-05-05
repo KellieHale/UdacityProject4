@@ -37,7 +37,8 @@ import org.koin.android.ext.android.inject
 import java.util.*
 
 
-class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
+class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
+GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -106,12 +107,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         checkAllLocationPermissions()
     }
 
+    @SuppressLint("MissingPermission")
     private fun checkAllLocationPermissions() {
         if (isPermissionGranted() && isBackgroundPermissionGranted()) {
             val zoomLevel = 20f
             map.addMarker(MarkerOptions().position(homeLatLng))
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
             showMyLocationOnMap()
+            map.isMyLocationEnabled = true
+            map.setOnMyLocationClickListener(this)
+            map.setOnMyLocationButtonClickListener(this)
+
         } else if (!isPermissionGranted()) {
             enableMyLocation()
         } else if (!isBackgroundPermissionGranted()) {
@@ -131,11 +137,24 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
         }
         isLocationAvailableOnDevice()
-        showMyLocationOnMap()
         setPoiClick(map)
-        setRandomPoi(map)
+        setLongClickPoi(map)
         setMapStyle(map)
         getLocationUpdates()
+    }
+
+    override fun onMyLocationButtonClick(): Boolean {
+        if (isLocationAvailableOnDevice()) {
+            Toast.makeText(context, getString(R.string.current_location), Toast.LENGTH_SHORT).show()
+        }
+        else {
+            Toast.makeText(context, "Current Location Unavailable", Toast.LENGTH_SHORT).show()
+        }
+        return false
+    }
+
+    override fun onMyLocationClick(location: Location) {
+        Toast.makeText(context, "Current Location is \n$location", Toast.LENGTH_SHORT).show()
     }
 
     private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
@@ -147,7 +166,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             .create()
             .show()
     }
-    private fun setRandomPoi(map: GoogleMap) {
+    private fun setLongClickPoi(map: GoogleMap) {
         map.setOnMapLongClickListener { latlng ->
             val randomMarker = map.addMarker(
                 MarkerOptions()
@@ -229,11 +248,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     longitude = location.longitude
                     val currentLocation = LatLng(latitude, longitude)
                     map.isMyLocationEnabled = true
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 5f))
                 }
                 .addOnFailureListener {
-                    getLocationUpdates()
+                    Toast.makeText(context, "Current Location Unavailable", Toast.LENGTH_SHORT).show()
                 }
+        } else {
+            Toast.makeText(context, "Please Enable Location Services", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -271,10 +292,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     val location = p0.lastLocation
                     location?.latitude
                     location?.longitude
-
                 }
             }
         }
     }
+
 
 }
