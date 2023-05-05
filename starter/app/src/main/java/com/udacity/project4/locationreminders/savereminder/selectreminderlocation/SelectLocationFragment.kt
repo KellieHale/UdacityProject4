@@ -148,7 +148,7 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
             Toast.makeText(context, getString(R.string.current_location), Toast.LENGTH_SHORT).show()
         }
         else {
-            Toast.makeText(context, "Current Location Unavailable", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Current Location Unavailable. Please Enable Location", Toast.LENGTH_SHORT).show()
         }
         return false
     }
@@ -249,12 +249,8 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
                     val currentLocation = LatLng(latitude, longitude)
                     map.isMyLocationEnabled = true
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 5f))
+                    getLocationUpdates()
                 }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Current Location Unavailable", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(context, "Please Enable Location Services", Toast.LENGTH_SHORT).show()
         }
     }
 
