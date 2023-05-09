@@ -3,6 +3,8 @@ package com.udacity.project4.locationreminders
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf()) : ReminderDataSource {
@@ -13,14 +15,14 @@ class FakeDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf())
         shouldReturnError = value
     }
 
-    override suspend fun getReminders(): Result<List<ReminderDTO>> {
+    override suspend fun getReminders(): Result<List<ReminderDTO>> = withContext(Dispatchers.IO) {
         if (shouldReturnError) {
-            return Result.Error("Fake error encountered...")
+             Result.Error("Fake error encountered...")
         } else {
             reminders?.let {
-                return Result.Success(ArrayList(it))
+                Result.Success(ArrayList(it))
             }
-            return Result.Error("No reminders found")
+            Result.Error("No reminders found")
         }
     }
 

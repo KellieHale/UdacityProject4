@@ -2,10 +2,8 @@ package com.udacity.project4.locationreminders.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
-import androidx.room.Update
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 
 /**
@@ -24,7 +22,7 @@ interface RemindersDao {
      * @return the reminder object with the reminderId
      */
     @Query("SELECT * FROM reminders where entry_id = :reminderId")
-    suspend fun getReminderById(reminderId: String): ReminderDTO?
+    suspend fun getReminderById(reminderId: String): ReminderDTO
 
     /**
      * Insert a reminder in the database. If the reminder already exists, replace it.

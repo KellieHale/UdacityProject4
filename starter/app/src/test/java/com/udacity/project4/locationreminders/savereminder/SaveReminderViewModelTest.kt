@@ -11,6 +11,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -26,6 +27,7 @@ class SaveReminderViewModelTest {
     private lateinit var saveReminderViewModel: SaveReminderViewModel
     private lateinit var dataSource: FakeDataSource
     private lateinit var context: Application
+
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -71,6 +73,17 @@ class SaveReminderViewModelTest {
         saveReminderViewModel.navigationCommand.value
         assertEquals(NavigationCommand.Back, saveReminderViewModel.navigationCommand.value)
 
+    }
+
+    @Test
+    fun validateEnteredData() = runBlocking{
+        val reminderData = getReminder()
+        if (reminderData.title.isNullOrEmpty()) {
+            assertEquals("Please Enter Title", R.string.err_enter_title)
+        }
+        if (reminderData.location.isNullOrEmpty()) {
+            assertEquals("Please select location", R.string.err_select_location)
+        }
     }
 
     @Test
