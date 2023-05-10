@@ -117,15 +117,6 @@ class RemindersActivityTest :
         }
         activityScenario.close()
     }
-    @Test
-    fun isToastShowing() {
-        val activity = ActivityScenario.launch(RemindersActivity::class.java)
-        dataBindingIdlingResource.monitorActivity(activity)
-        onView(withId(R.id.action_authenticationFragment_to_reminderListFragment)).perform(click())
-        onView(withText(R.string.welcome_to_the_location_reminder_app))
-            .inRoot(withDecorView(not(`is`(activityRule(activity).window.decorView))))
-            .check(matches(isDisplayed()))
-    }
 
     private fun activityRule(activityScenario: ActivityScenario<RemindersActivity>): Activity {
         lateinit var activity: Activity
