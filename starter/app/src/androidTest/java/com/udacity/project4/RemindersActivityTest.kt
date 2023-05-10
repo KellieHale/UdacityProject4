@@ -1,16 +1,22 @@
 package com.udacity.project4
 
 import android.Manifest.permission.POST_NOTIFICATIONS
+import android.app.Activity
 import android.app.Application
 import android.os.Build
 import androidx.test.InstrumentationRegistry.getTargetContext
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
+import com.firebase.ui.auth.AuthUI.getApplicationContext
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
@@ -20,6 +26,8 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorActivity
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -50,7 +58,7 @@ class RemindersActivityTest :
     @Before
     fun init() {
         stopKoin()//stop the original app koin
-        appContext = getApplicationContext()
+        appContext = getApplicationContext() as Application
         val myModule = module {
             viewModel {
                 RemindersListViewModel(
@@ -98,10 +106,9 @@ class RemindersActivityTest :
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         POST_NOTIFICATIONS
     )
-
     @Test
     fun notificationPermission() {
-        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        val activityScenario: ActivityScenario<RemindersActivity> = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getInstrumentation().uiAutomation.executeShellCommand(
@@ -110,5 +117,21 @@ class RemindersActivityTest :
         }
         activityScenario.close()
     }
+    @Test
+    fun isToastShowing() {
+        val activity = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activity)
+        onView(withId(R.id.action_authenticationFragment_to_reminderListFragment)).perform(click())
+        onView(withText(R.string.welcome_to_the_location_reminder_app))
+            .inRoot(withDecorView(not(`is`(activityRule(activity).window.decorView))))
+            .check(matches(isDisplayed()))
+    }
 
+    private fun activityRule(activityScenario: ActivityScenario<RemindersActivity>): Activity {
+        lateinit var activity: Activity
+        activityScenario.onActivity {
+            activity = it
+        }
+        return activity
+    }
 }

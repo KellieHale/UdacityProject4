@@ -2,6 +2,7 @@ package com.udacity.project4.locationreminders.data.local
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.MediumTest
 import androidx.test.runner.AndroidJUnit4
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
