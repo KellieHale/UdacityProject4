@@ -24,6 +24,7 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -128,16 +129,16 @@ class SaveReminderFragment : BaseFragment() {
                 addOnCompleteListener {
                     addOnSuccessListener {
                         Log.e("Add Geofence", geofencingRequest.geofences.toString())
-                        Toast.makeText(requireActivity(), "Geofence Added!", Toast.LENGTH_SHORT)
+                        Snackbar.make(binding.root, "Geofence Added!", Snackbar.LENGTH_SHORT)
                             .show()
                         _viewModel.validateAndSaveReminder(reminderDataItem)
                     }
                     addOnFailureListener {
                         it.printStackTrace()
-                        Toast.makeText(
-                            requireActivity(),
+                        Snackbar.make(
+                            binding.root,
                             resources.getString(R.string.geofences_not_added),
-                            Toast.LENGTH_SHORT
+                            Snackbar.LENGTH_SHORT
                         ).show()
                     }
                 }

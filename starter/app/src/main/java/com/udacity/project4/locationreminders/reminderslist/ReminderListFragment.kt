@@ -1,32 +1,19 @@
 package com.udacity.project4.locationreminders.reminderslist
 
-import android.content.ClipData.Item
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.NavigationUI.navigateUp
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.auth.AuthUI
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
-import com.udacity.project4.authentication.AuthenticationFragment
-import com.udacity.project4.authentication.LoginViewModel
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentRemindersBinding
 import com.udacity.project4.locationreminders.RemindersActivity
-import com.udacity.project4.utils.*
+import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import com.udacity.project4.utils.setTitle
+import com.udacity.project4.utils.setup
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ReminderListFragment : BaseFragment() {
@@ -101,7 +88,7 @@ class ReminderListFragment : BaseFragment() {
                     Intent(requireContext(),
                         RemindersActivity::class.java)
                 )
-                Toast.makeText(requireContext(), "You have Logged Out", Toast.LENGTH_SHORT)
+                Snackbar.make(binding.root, "You have Logged Out", Snackbar.LENGTH_SHORT)
                     .show()
             }
             else -> {}
