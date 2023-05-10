@@ -11,10 +11,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
@@ -23,7 +23,6 @@ import com.udacity.project4.locationreminders.RemindersActivity
 class AuthenticationFragment : Fragment() {
 
     private lateinit var binding: ActivityAuthenticationBinding
-    private lateinit var navController: NavController
 
     private val viewModel by viewModels<LoginViewModel>()
 
@@ -44,10 +43,6 @@ class AuthenticationFragment : Fragment() {
             findNavController().navigate(R.id.action_authenticationFragment_to_reminderListFragment)
         }
         return binding.root
-    }
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        navController = findNavController()
     }
 
     override fun onResume() {
@@ -94,7 +89,7 @@ class AuthenticationFragment : Fragment() {
                     TAG, "Successfully signed in user" +
                         "${FirebaseAuth.getInstance().currentUser?.displayName}!")
                 findNavController().navigate(R.id.action_authenticationFragment_to_reminderListFragment)
-                Toast.makeText(context, "Welcome to the Location Reminders App!", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Welcome to the Location Reminders App!", Snackbar.LENGTH_SHORT).show()
             } else {
                 Log.i(TAG, "Sign in unsuccessful ${response?.error?.message}")
                 Toast.makeText(context,"Please register for an Account", Toast.LENGTH_LONG).show()

@@ -15,6 +15,7 @@
  */
 package com.udacity.project4.util
 
+import android.app.Activity
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -23,7 +24,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.IdlingResource
-import java.util.UUID
+import java.util.*
 
 /**
  * An espresso idling resource implementation that reports idle status for all data binding
@@ -42,7 +43,8 @@ class DataBindingIdlingResource : IdlingResource {
     // onTransitionToIdle callbacks if Espresso never thought we were idle in the first place.
     private var wasNotIdle = false
 
-    lateinit var activity: FragmentActivity
+    lateinit var fragment: Fragment
+    lateinit var activity: Activity
 
     override fun getName() = "DataBinding $id"
 
@@ -105,7 +107,8 @@ fun DataBindingIdlingResource.monitorActivity(
  * Sets the fragment from a [FragmentScenario] to be used from [DataBindingIdlingResource].
  */
 fun DataBindingIdlingResource.monitorFragment(fragmentScenario: FragmentScenario<out Fragment>) {
-//    fragmentScenario.onFragment {
-//        this.activity = it.requireActivity()
-//    }
+    fragmentScenario.onFragment {
+        this.fragment = it
+
+    }
 }
