@@ -13,7 +13,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -178,10 +177,10 @@ class SaveReminderFragment : BaseFragment() {
                             "screen to allow background location access."
                 )
                 { dialog, _ ->
-                    Toast.makeText(
-                        context,
+                    Snackbar.make(
+                        binding.root,
                         getString(R.string.permission_denied_explanation),
-                        Toast.LENGTH_SHORT
+                        Snackbar.LENGTH_SHORT
                     ).show()
                     dialog.dismiss()
                     if (VERSION.SDK_INT >= 29) {

@@ -13,7 +13,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -25,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
@@ -127,16 +127,16 @@ GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener{
 
     override fun onMyLocationButtonClick(): Boolean {
         if (isLocationAvailableOnDevice()) {
-            Toast.makeText(context, getString(R.string.current_location), Toast.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, getString(R.string.current_location), Snackbar.LENGTH_SHORT).show()
         }
         else {
-            Toast.makeText(context, "Current Location Unavailable. Please Enable Location", Toast.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, "Current Location Unavailable. Please Enable Location", Snackbar.LENGTH_SHORT).show()
         }
         return false
     }
 
     override fun onMyLocationClick(location: Location) {
-        Toast.makeText(context, "Current Location is \n$location", Toast.LENGTH_SHORT).show()
+        Snackbar.make(binding.root, "Current Location is \n$location", Snackbar.LENGTH_SHORT).show()
     }
     private fun setLongClickPoi(map: GoogleMap) {
         map.setOnMapLongClickListener { latlng ->
