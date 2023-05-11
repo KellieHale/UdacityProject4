@@ -103,7 +103,9 @@ class RemindersActivityTest :
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         POST_NOTIFICATIONS
     )
+
     private val activityScenario: ActivityScenario<RemindersActivity> = ActivityScenario.launch(RemindersActivity::class.java)
+
     @Test
     fun notificationPermission() {
         dataBindingIdlingResource.monitorActivity(activityScenario)
@@ -112,7 +114,6 @@ class RemindersActivityTest :
                 "pm grant " + getTargetContext().packageName + POST_NOTIFICATIONS
             )
         }
-        activityScenario.close()
     }
 
     @Test

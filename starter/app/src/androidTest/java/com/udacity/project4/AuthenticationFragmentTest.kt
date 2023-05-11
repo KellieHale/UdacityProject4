@@ -49,7 +49,7 @@ class AuthenticationFragmentTest {
     }
 
     @Test
-    fun testShowWelcomeToast() {
+    fun testShowWelcomeSnackbar() {
         val scenario =
             launchFragmentInContainer<AuthenticationFragment>(Bundle(), R.style.AppTheme)
         val navController = Mockito.mock(NavController::class.java)
@@ -62,4 +62,5 @@ class AuthenticationFragmentTest {
         onView(withId(R.id.snackbar_text))
             .check(matches(withText("Welcome to the Location Reminders App!")))
     }
+
 }

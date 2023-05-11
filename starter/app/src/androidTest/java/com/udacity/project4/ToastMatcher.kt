@@ -8,7 +8,7 @@ import org.hamcrest.TypeSafeMatcher
 class ToastMatcher: TypeSafeMatcher<Root>() {
 
     override fun describeTo(description: Description) {
-        description.appendText("is Toast")
+        description.appendText(R.string.welcome_to_the_location_reminder_app.toString())
     }
 
     override fun matchesSafely(root: Root): Boolean {
@@ -17,10 +17,10 @@ class ToastMatcher: TypeSafeMatcher<Root>() {
             val windowToken = root.decorView.windowToken
             val appToken = root.decorView.applicationWindowToken
             if (windowToken == appToken) {
-                return true
+                return false
             }
         }
-        return false
+        return true
     }
 
 

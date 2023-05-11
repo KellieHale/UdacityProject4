@@ -34,7 +34,6 @@ class RemindersActivity : AppCompatActivity() {
                 Manifest.permission.POST_NOTIFICATIONS
             )
         }
-        Toast.makeText(this, R.string.welcome_to_the_location_reminder_app, Toast.LENGTH_SHORT).show()
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
