@@ -16,6 +16,7 @@
 package com.udacity.project4.util
 
 import android.app.Activity
+import android.os.Looper
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -44,7 +45,7 @@ class DataBindingIdlingResource : IdlingResource {
     private var wasNotIdle = false
 
     lateinit var fragment: Fragment
-    lateinit var activity: Activity
+    var activity: Activity = Activity()
 
     override fun getName() = "DataBinding $id"
 
@@ -99,7 +100,9 @@ fun DataBindingIdlingResource.monitorActivity(
     activityScenario: ActivityScenario<out FragmentActivity>
 ) {
     activityScenario.onActivity {
+        activity = Activity()
         this.activity = it
+        Looper.prepare()
     }
 }
 

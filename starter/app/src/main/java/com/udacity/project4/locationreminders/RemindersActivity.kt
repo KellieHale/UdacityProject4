@@ -5,14 +5,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.udacity.project4.R
 
 /**
@@ -30,11 +27,14 @@ class RemindersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminders)
 
+        Toast.makeText(this, R.string.welcome_to_the_location_reminder_app, Toast.LENGTH_SHORT).show()
+
         if (Build.VERSION.SDK_INT >= 33 && !notificationPermissionGranted()) {
             requestNotificationPermissions.launch(
                 Manifest.permission.POST_NOTIFICATIONS
             )
         }
+        Toast.makeText(this, R.string.welcome_to_the_location_reminder_app, Toast.LENGTH_SHORT).show()
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

@@ -3,16 +3,18 @@ package com.udacity.project4
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.Application
 import android.os.Build
+import android.os.Looper
 import androidx.test.InstrumentationRegistry.getTargetContext
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
 import com.firebase.ui.auth.AuthUI.getApplicationContext
-import com.udacity.project4.R.*
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
@@ -89,6 +91,7 @@ class RemindersActivityTest :
 
     @Before
     fun registerIdlingResource() {
+        Looper.prepare()
         IdlingRegistry.getInstance().register(dataBindingIdlingResource)
     }
     @After
@@ -100,15 +103,25 @@ class RemindersActivityTest :
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         POST_NOTIFICATIONS
     )
+    private val activityScenario: ActivityScenario<RemindersActivity> = ActivityScenario.launch(RemindersActivity::class.java)
     @Test
     fun notificationPermission() {
-        val activityScenario: ActivityScenario<RemindersActivity> = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getInstrumentation().uiAutomation.executeShellCommand(
                 "pm grant " + getTargetContext().packageName + POST_NOTIFICATIONS
             )
         }
+        activityScenario.close()
+    }
+
+    @Test
+    fun doesToastShow(){
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+        onView(withText(R.string.welcome_to_the_location_reminder_app))
+            .inRoot(ToastMatcher())
+            .check(matches(isDisplayed()))
+
         activityScenario.close()
     }
 }
